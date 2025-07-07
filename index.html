@@ -42,6 +42,27 @@
       border-radius: 8px;
       color: #2e7d32;
     }
+    .btn {
+      margin: 10px 5px;
+      padding: 10px 20px;
+      font-size: 1em;
+      border: none;
+      border-radius: 5px;
+      background-color: #1976d2;
+      color: #fff;
+      cursor: pointer;
+    }
+    #timer {
+      margin: 10px;
+      font-size: 1.2em;
+      color: red;
+    }
+    #wrongWordsList ul {
+      text-align: left;
+      font-size: 0.8em;
+      list-style: square;
+      padding-left: 30px;
+    }
     .typing-error {
       border-color: red;
       background-color: #ffcdd2;
@@ -67,32 +88,18 @@
       0% { opacity: 1; transform: translateY(0); }
       100% { opacity: 0; transform: translateY(-100px); }
     }
-    #typoMsg {
-      color: #d32f2f;
-      font-size: 1em;
-      display: none;
-      margin-top: 10px;
-    }
-    #scoreWrapper {
-      margin-top: 20px;
-      border: 2px solid #1976d2;
-      border-radius: 8px;
-      padding: 10px;
-      background-color: #f0f0f0;
-    }
   </style>
 </head>
 <body>
   <h1>Typing Challenge</h1>
   <div id="gameArea">
-    <audio id="startMusic" src="startaction.mp3" loop></audio>
+    <audio id="startMusic" src="startaction.mp3"></audio>
     <audio id="gameOverMusic" src="gameover.mp3"></audio>
 
     <div id="quote">Press Start!</div>
     <textarea id="input" disabled placeholder="Type here..."></textarea>
     <div id="lives">❤️❤️❤️</div>
     <div id="timer">Time left: 15s</div>
-    <div id="typoMsg">typo LOL 😅</div>
 
     <div id="wrongWordsList">
       <h4>Wrong Words:</h4>
@@ -100,10 +107,13 @@
     </div>
 
     <div id="gameOverMsg" style="display:none; font-size: 1.2em; color: #d32f2f">GAME OVER</div>
+
     <input type="text" id="playerName" placeholder="Enter your name" />
     <button class="btn" id="startBtn">Start</button>
+  </div>
+  <div style="margin-top: 30px;">
     <button class="btn" id="muteBtn" onclick="toggleMute()">🔊 Mute</button>
-    <div id="scoreWrapper">
+    <div id="scoreboard" style="margin-top: 20px;">
       <h3>Top Scores</h3>
       <ul id="scoreList"></ul>
       <button class="btn" id="resetScoreBtn">Reset Score</button>
@@ -116,7 +126,6 @@
     const livesDisplay = document.getElementById("lives");
     const timerDisplay = document.getElementById("timer");
     const wrongList = document.getElementById("wrongList");
-    const typoMsg = document.getElementById("typoMsg");
     const gameOverMsg = document.getElementById("gameOverMsg");
     const scoreList = document.getElementById("scoreList");
     const playerName = document.getElementById("playerName");
@@ -128,16 +137,10 @@
     let usedWords = [], currentWord = "", score = 0, lives = 3, timer = 15, timerInterval;
     let gameActive = false, isMuted = false, wrongWords = [];
 
-    const wordBank = [
-      // Easy
-      "cat","dog","sun","run","pen","cup","red","box","fan","car","man","top","net",
-      // Medium
-      "apple","train","green","mouse","cloud","robot","happy","water","jump","dance",
-      // Hard
-      "freedom","monitor","keyboard","balance","picture","plastic","science","gadget",
-      // Very Hard
-      "transcendence","microprocessor","extraordinary","distribution","consequence"
-    ];
+    const easyWords = ["cat","dog","sun","box","run","red","man","car","pen","hat"];
+    const mediumWords = ["apple","train","green","mouse","cloud","robot","happy"];
+    const hardWords = ["freedom","monitor","keyboard","balance","picture"];
+    const extremeWords = ["transcendence","microprocessor","extraordinary"];
 
     function toggleMute() {
       isMuted = !isMuted;
@@ -147,15 +150,20 @@
     }
 
     function getWordLevel(score) {
-      if (score < 5) return 10;
-      if (score < 10) return 20;
-      if (score < 20) return 30;
-      return wordBank.length;
+      if (score < 5) return 'easy';
+      if (score < 10) return 'medium';
+      if (score < 15) return 'hard';
+      return 'extreme';
     }
 
     function getNewWord() {
-      const levelLimit = getWordLevel(score);
-      let bank = wordBank.slice(0, levelLimit);
+      const level = getWordLevel(score);
+      let bank = [];
+      if (level === 'easy') bank = easyWords;
+      else if (level === 'medium') bank = [...easyWords, ...mediumWords];
+      else if (level === 'hard') bank = [...easyWords, ...mediumWords, ...hardWords];
+      else bank = [...easyWords, ...mediumWords, ...hardWords, ...extremeWords];
+
       let unused = bank.filter(w => !usedWords.includes(w));
       if (unused.length === 0) usedWords = [];
       let word;
@@ -174,22 +182,19 @@
         timerDisplay.textContent = `Time left: ${timer}s`;
         if (timer <= 0) {
           addWrongWord(input.value, currentWord);
-          showTypo();
           loseLife();
           showNewWord();
         }
       }, 1000);
     }
 
-    function showTypo() {
-      typoMsg.style.display = "block";
-      setTimeout(() => typoMsg.style.display = "none", 1000);
-    }
-
     function addWrongWord(wrong, correct) {
-      const li = document.createElement("li");
-      li.textContent = `${wrong} ❌ > ${correct} ✅`;
-      wrongList.appendChild(li);
+      if (!wrongWords.includes(wrong)) {
+        wrongWords.push(wrong);
+        const li = document.createElement("li");
+        li.textContent = `${wrong} ❌ > ${correct} ✅`;
+        wrongList.appendChild(li);
+      }
     }
 
     function showNewWord() {
@@ -246,6 +251,7 @@
       score = 0;
       lives = 3;
       usedWords = [];
+      wrongWords = [];
       wrongList.innerHTML = "";
       gameOverMsg.style.display = "none";
       input.disabled = false;
@@ -280,7 +286,6 @@
         showNewWord();
       } else if (!currentWord.startsWith(input.value.trim())) {
         addWrongWord(input.value, currentWord);
-        showTypo();
         loseLife();
         showNewWord();
       }
