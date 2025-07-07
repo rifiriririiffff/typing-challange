@@ -1,306 +1,445 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Typing Challenge</title>
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Press Start 2P', monospace;
-      background-color: #e3f2fd;
-      color: #0d47a1;
-      text-align: center;
-      padding: 20px;
-      overflow-x: hidden;
-    }
-    h1 {
-      font-size: 2em;
-      color: #1976d2;
-    }
-    #gameArea {
-      max-width: 700px;
-      margin: auto;
-      background: #ffffff;
-      padding: 20px;
-      border: 3px solid #1976d2;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(25, 118, 210, 0.5);
-      position: relative;
-    }
-    #quote {
-      font-size: 1.5em;
-      margin: 20px 0;
-    }
-    textarea {
-      width: 90%;
-      height: 80px;
-      font-size: 1em;
-      padding: 10px;
-      text-align: center;
-      background: #e8f5e9;
-      border: 2px solid #4caf50;
-      border-radius: 8px;
-      color: #2e7d32;
-    }
-    .btn {
-      margin: 10px 5px;
-      padding: 10px 20px;
-      font-size: 1em;
-      border: none;
-      border-radius: 5px;
-      background-color: #1976d2;
-      color: #fff;
-      cursor: pointer;
-    }
-    #timer {
-      margin: 10px;
-      font-size: 1.2em;
-      color: red;
-    }
-    #wrongWordsList ul {
-      text-align: left;
-      font-size: 0.8em;
-      list-style: square;
-      padding-left: 30px;
-    }
-    .typing-error {
-      border-color: red;
-      background-color: #ffcdd2;
-      color: #c62828;
-    }
-    .shake {
-      animation: shakeScreen 0.4s;
-    }
-    @keyframes shakeScreen {
-      0%, 100% { transform: translate(0, 0); }
-      20%, 60% { transform: translate(-5px, 0); }
-      40%, 80% { transform: translate(5px, 0); }
-    }
-    .heart {
-      position: absolute;
-      font-size: 2em;
-      animation: floatUp 1s ease-out forwards;
-      color: red;
-      left: 50%;
-      transform: translateX(-50%);
-    }
-    @keyframes floatUp {
-      0% { opacity: 1; transform: translateY(0); }
-      100% { opacity: 0; transform: translateY(-100px); }
-    }
-  </style>
-</head>
-<body>
-  <h1>Typing Challenge</h1>
-  <div id="gameArea">
-    <audio id="startMusic" src="startaction.mp3"></audio>
-    <audio id="gameOverMusic" src="gameover.mp3"></audio>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Typing Challenge</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Press Start 2P", monospace;
+        background-color: #e3f2fd;
+        color: #0d47a1;
+        text-align: center;
+        padding: 20px;
+        overflow-x: hidden;
+      }
+      h1 {
+        font-size: 2em;
+        color: #1976d2;
+      }
+      #gameArea {
+        max-width: 700px;
+        margin: auto;
+        background: #ffffff;
+        padding: 20px;
+        border: 3px solid #1976d2;
+        border-radius: 12px;
+        box-shadow: 0 0 15px rgba(25, 118, 210, 0.5);
+        position: relative;
+      }
+      #quote {
+        font-size: 1.5em;
+        margin: 20px 0;
+      }
+      textarea {
+        width: 90%;
+        height: 80px;
+        font-size: 1em;
+        padding: 10px;
+        text-align: center;
+        background: #e8f5e9;
+        border: 2px solid #4caf50;
+        border-radius: 8px;
+        color: #2e7d32;
+      }
+      .btn {
+        margin: 10px 5px;
+        padding: 10px 20px;
+        font-size: 1em;
+        border: none;
+        border-radius: 5px;
+        background-color: #1976d2;
+        color: #fff;
+        cursor: pointer;
+      }
+      #timer {
+        margin: 10px;
+        font-size: 1.2em;
+        color: red;
+      }
+      #wrongWordsList ul {
+        text-align: left;
+        font-size: 0.8em;
+        list-style: square;
+        padding-left: 30px;
+      }
+      .typing-error {
+        border-color: red;
+        background-color: #ffcdd2;
+        color: #c62828;
+      }
+      .shake {
+        animation: shakeScreen 0.4s;
+      }
+      @keyframes shakeScreen {
+        0%,
+        100% {
+          transform: translate(0, 0);
+        }
+        20%,
+        60% {
+          transform: translate(-5px, 0);
+        }
+        40%,
+        80% {
+          transform: translate(5px, 0);
+        }
+      }
+      .heart {
+        position: absolute;
+        font-size: 2em;
+        animation: floatUp 1s ease-out forwards;
+        color: red;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+      @keyframes floatUp {
+        0% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(-100px);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Typing Challenge</h1>
+    <div id="gameArea">
+      <audio id="startMusic" src="startaction.mp3" loop></audio>
+      <audio id="gameOverMusic" src="gameover.mp3"></audio>
 
-    <div id="quote">Press Start!</div>
-    <textarea id="input" disabled placeholder="Type here..."></textarea>
-    <div id="lives">❤️❤️❤️</div>
-    <div id="timer">Time left: 15s</div>
+      <div id="quote">Press Start!</div>
+      <textarea id="input" disabled placeholder="Type here..."></textarea>
+      <div id="lives">❤️❤️❤️</div>
+      <div id="timer">Time left: 15s</div>
 
-    <div id="wrongWordsList">
-      <h4>Wrong Words:</h4>
-      <ul id="wrongList"></ul>
+      <div id="wrongWordsList">
+        <h4>Wrong Words:</h4>
+        <ul id="wrongList"></ul>
+      </div>
+
+      <div
+        id="gameOverMsg"
+        style="display: none; font-size: 1.2em; color: #d32f2f"
+      >
+        GAME OVER
+      </div>
+
+      <input type="text" id="playerName" placeholder="Enter your name" />
+      <button class="btn" id="startBtn">Start</button>
+    </div>
+    <div style="margin-top: 30px">
+      <button class="btn" id="muteBtn" onclick="toggleMute()">🔊 Mute</button>
+      <div id="scoreboard" style="margin-top: 20px">
+        <h3>Top Scores</h3>
+        <ul id="scoreList"></ul>
+        <button class="btn" id="resetScoreBtn">Reset Score</button>
+      </div>
     </div>
 
-    <div id="gameOverMsg" style="display:none; font-size: 1.2em; color: #d32f2f">GAME OVER</div>
+    <script>
+      const input = document.getElementById("input");
+      const quote = document.getElementById("quote");
+      const livesDisplay = document.getElementById("lives");
+      const timerDisplay = document.getElementById("timer");
+      const wrongList = document.getElementById("wrongList");
+      const gameOverMsg = document.getElementById("gameOverMsg");
+      const scoreList = document.getElementById("scoreList");
+      const playerName = document.getElementById("playerName");
+      const startBtn = document.getElementById("startBtn");
+      const resetScoreBtn = document.getElementById("resetScoreBtn");
+      const startMusic = document.getElementById("startMusic");
+      const gameOverMusic = document.getElementById("gameOverMusic");
 
-    <input type="text" id="playerName" placeholder="Enter your name" />
-    <button class="btn" id="startBtn">Start</button>
-  </div>
-  <div style="margin-top: 30px;">
-    <button class="btn" id="muteBtn" onclick="toggleMute()">🔊 Mute</button>
-    <div id="scoreboard" style="margin-top: 20px;">
-      <h3>Top Scores</h3>
-      <ul id="scoreList"></ul>
-      <button class="btn" id="resetScoreBtn">Reset Score</button>
-    </div>
-  </div>
+      let usedWords = [],
+        currentWord = "",
+        score = 0,
+        lives = 3,
+        timer = 15,
+        timerInterval;
+      let gameActive = false,
+        isMuted = false,
+        wrongWords = [];
 
-  <script>
-    const input = document.getElementById("input");
-    const quote = document.getElementById("quote");
-    const livesDisplay = document.getElementById("lives");
-    const timerDisplay = document.getElementById("timer");
-    const wrongList = document.getElementById("wrongList");
-    const gameOverMsg = document.getElementById("gameOverMsg");
-    const scoreList = document.getElementById("scoreList");
-    const playerName = document.getElementById("playerName");
-    const startBtn = document.getElementById("startBtn");
-    const resetScoreBtn = document.getElementById("resetScoreBtn");
-    const startMusic = document.getElementById("startMusic");
-    const gameOverMusic = document.getElementById("gameOverMusic");
+      const easyWords = [
+        "cat",
+        "dog",
+        "sun",
+        "box",
+        "run",
+        "red",
+        "man",
+        "car",
+        "pen",
+        "hat",
+        "book",
+        "tree",
+        "ball",
+        "milk",
+        "cake",
+        "fish",
+        "star",
+        "cup",
+        "hand",
+        "shoe",
+        "bed",
+        "egg",
+        "lamp",
+        "rain",
+        "bike",
+        "door",
+        "frog",
+        "leaf",
+        "nose",
+        "rock",
+      ];
 
-    let usedWords = [], currentWord = "", score = 0, lives = 3, timer = 15, timerInterval;
-    let gameActive = false, isMuted = false, wrongWords = [];
+      const mediumWords = [
+        "apple",
+        "train",
+        "green",
+        "mouse",
+        "cloud",
+        "robot",
+        "happy",
+        "horse",
+        "beach",
+        "music",
+        "party",
+        "storm",
+        "truck",
+        "plane",
+        "grape",
+        "light",
+        "phone",
+        "glass",
+        "candy",
+        "brush",
+        "river",
+        "tower",
+        "snack",
+        "dance",
+        "flame",
+        "piano",
+        "table",
+        "bread",
+      ];
 
-    const easyWords = ["cat","dog","sun","box","run","red","man","car","pen","hat"];
-    const mediumWords = ["apple","train","green","mouse","cloud","robot","happy"];
-    const hardWords = ["freedom","monitor","keyboard","balance","picture"];
-    const extremeWords = ["transcendence","microprocessor","extraordinary"];
+      const hardWords = [
+        "freedom",
+        "monitor",
+        "keyboard",
+        "balance",
+        "picture",
+        "library",
+        "fiction",
+        "plastic",
+        "journey",
+        "diamond",
+        "holiday",
+        "planet",
+        "dolphin",
+        "teacher",
+        "rocket",
+        "pencil",
+        "weather",
+        "monster",
+        "country",
+        "battery",
+        "college",
+        "garbage",
+        "message",
+        "machine",
+        "factory",
+      ];
 
-    function toggleMute() {
-      isMuted = !isMuted;
-      startMusic.muted = isMuted;
-      gameOverMusic.muted = isMuted;
-      document.getElementById("muteBtn").textContent = isMuted ? "🔇 Unmute" : "🔊 Mute";
-    }
+      const extremeWords = [
+        "transcendence",
+        "microprocessor",
+        "extraordinary",
+        "subconsciously",
+        "misinterpretation",
+        "counterproductive",
+        "institutionalize",
+        "intercontinental",
+        "uncharacteristically",
+        "responsibilities",
+        "individualistic",
+        "thermodynamics",
+      ];
 
-    function getWordLevel(score) {
-      if (score < 5) return 'easy';
-      if (score < 10) return 'medium';
-      if (score < 15) return 'hard';
-      return 'extreme';
-    }
+      function toggleMute() {
+        isMuted = !isMuted;
+        startMusic.muted = isMuted;
+        gameOverMusic.muted = isMuted;
+        document.getElementById("muteBtn").textContent = isMuted
+          ? "🔇 Unmute"
+          : "🔊 Mute";
+      }
 
-    function getNewWord() {
-      const level = getWordLevel(score);
-      let bank = [];
-      if (level === 'easy') bank = easyWords;
-      else if (level === 'medium') bank = [...easyWords, ...mediumWords];
-      else if (level === 'hard') bank = [...easyWords, ...mediumWords, ...hardWords];
-      else bank = [...easyWords, ...mediumWords, ...hardWords, ...extremeWords];
+      function getWordLevel(score) {
+        if (score < 5) return "easy";
+        if (score < 10) return "medium";
+        if (score < 15) return "hard";
+        return "extreme";
+      }
 
-      let unused = bank.filter(w => !usedWords.includes(w));
-      if (unused.length === 0) usedWords = [];
-      let word;
-      do { word = bank[Math.floor(Math.random() * bank.length)]; }
-      while (usedWords.includes(word));
-      usedWords.push(word);
-      return word;
-    }
+      function getNewWord() {
+        const level = getWordLevel(score);
+        let bank = [];
+        if (level === "easy") bank = easyWords;
+        else if (level === "medium") bank = [...easyWords, ...mediumWords];
+        else if (level === "hard")
+          bank = [...easyWords, ...mediumWords, ...hardWords];
+        else
+          bank = [...easyWords, ...mediumWords, ...hardWords, ...extremeWords];
 
-    function resetTimer() {
-      clearInterval(timerInterval);
-      timer = 15;
-      timerDisplay.textContent = `Time left: ${timer}s`;
-      timerInterval = setInterval(() => {
-        timer--;
+        let unused = bank.filter((w) => !usedWords.includes(w));
+        if (unused.length === 0) usedWords = [];
+        let word;
+        do {
+          word = bank[Math.floor(Math.random() * bank.length)];
+        } while (usedWords.includes(word));
+        usedWords.push(word);
+        return word;
+      }
+
+      function resetTimer() {
+        clearInterval(timerInterval);
+        timer = 15;
         timerDisplay.textContent = `Time left: ${timer}s`;
-        if (timer <= 0) {
+        timerInterval = setInterval(() => {
+          timer--;
+          timerDisplay.textContent = `Time left: ${timer}s`;
+          if (timer <= 0) {
+            addWrongWord(input.value, currentWord);
+            loseLife();
+            showNewWord();
+          }
+        }, 1000);
+      }
+
+      function addWrongWord(wrong, correct) {
+        if (!wrongWords.includes(wrong)) {
+          wrongWords.push(wrong);
+          const li = document.createElement("li");
+          li.textContent = `${wrong} ❌ > ${correct} ✅`;
+          wrongList.appendChild(li);
+        }
+      }
+
+      function showNewWord() {
+        currentWord = getNewWord();
+        quote.textContent = currentWord;
+        input.value = "";
+        input.focus();
+        resetTimer();
+      }
+
+      function updateLives() {
+        livesDisplay.innerHTML = "❤️".repeat(lives);
+      }
+
+      function triggerShake() {
+        document.body.classList.add("shake");
+        setTimeout(() => document.body.classList.remove("shake"), 400);
+      }
+
+      function showHeart() {
+        const heart = document.createElement("div");
+        heart.className = "heart";
+        heart.innerText = "💔";
+        document.getElementById("gameArea").appendChild(heart);
+        setTimeout(() => heart.remove(), 1000);
+      }
+
+      function flashInputError() {
+        input.classList.add("typing-error");
+        setTimeout(() => input.classList.remove("typing-error"), 500);
+      }
+
+      function loseLife() {
+        lives--;
+        updateLives();
+        triggerShake();
+        showHeart();
+        flashInputError();
+        clearInterval(timerInterval);
+        if (lives <= 0) endGame();
+      }
+
+      function endGame() {
+        gameActive = false;
+        input.disabled = true;
+        gameOverMsg.style.display = "block";
+        startMusic.pause();
+        startMusic.currentTime = 0;
+        if (!isMuted) gameOverMusic.play();
+        saveScore();
+      }
+
+      function startGame() {
+        score = 0;
+        lives = 3;
+        usedWords = [];
+        wrongWords = [];
+        wrongList.innerHTML = "";
+        gameOverMsg.style.display = "none";
+        input.disabled = false;
+        updateLives();
+        showNewWord();
+        if (!isMuted) startMusic.play();
+      }
+
+      function saveScore() {
+        const name = playerName.value.trim() || "Player";
+        const scores = JSON.parse(localStorage.getItem("scores") || "[]");
+        scores.push({ name, score });
+        scores.sort((a, b) => b.score - a.score);
+        localStorage.setItem("scores", JSON.stringify(scores.slice(0, 10)));
+        displayScores();
+      }
+
+      function displayScores() {
+        const scores = JSON.parse(localStorage.getItem("scores") || "[]");
+        scoreList.innerHTML = scores
+          .map((s, i) => `<li>#${i + 1} ${s.name}: ${s.score}</li>`)
+          .join("");
+      }
+
+      function resetScores() {
+        localStorage.removeItem("scores");
+        displayScores();
+      }
+
+      input.addEventListener("input", () => {
+        if (!gameActive) return;
+        if (input.value.trim() === currentWord) {
+          score++;
+          showNewWord();
+        } else if (!currentWord.startsWith(input.value.trim())) {
           addWrongWord(input.value, currentWord);
           loseLife();
           showNewWord();
         }
-      }, 1000);
-    }
+      });
 
-    function addWrongWord(wrong, correct) {
-      if (!wrongWords.includes(wrong)) {
-        wrongWords.push(wrong);
-        const li = document.createElement("li");
-        li.textContent = `${wrong} ❌ > ${correct} ✅`;
-        wrongList.appendChild(li);
-      }
-    }
+      startBtn.onclick = () => {
+        gameActive = true;
+        startMusic.currentTime = 0;
+        gameOverMusic.pause();
+        gameOverMusic.currentTime = 0;
+        startGame();
+      };
 
-    function showNewWord() {
-      currentWord = getNewWord();
-      quote.textContent = currentWord;
-      input.value = "";
-      input.focus();
-      resetTimer();
-    }
-
-    function updateLives() {
-      livesDisplay.innerHTML = "❤️".repeat(lives);
-    }
-
-    function triggerShake() {
-      document.body.classList.add('shake');
-      setTimeout(() => document.body.classList.remove('shake'), 400);
-    }
-
-    function showHeart() {
-      const heart = document.createElement("div");
-      heart.className = "heart";
-      heart.innerText = "💔";
-      document.getElementById("gameArea").appendChild(heart);
-      setTimeout(() => heart.remove(), 1000);
-    }
-
-    function flashInputError() {
-      input.classList.add("typing-error");
-      setTimeout(() => input.classList.remove("typing-error"), 500);
-    }
-
-    function loseLife() {
-      lives--;
-      updateLives();
-      triggerShake();
-      showHeart();
-      flashInputError();
-      clearInterval(timerInterval);
-      if (lives <= 0) endGame();
-    }
-
-    function endGame() {
-      gameActive = false;
-      input.disabled = true;
-      gameOverMsg.style.display = "block";
-      startMusic.pause();
-      startMusic.currentTime = 0;
-      if (!isMuted) gameOverMusic.play();
-      saveScore();
-    }
-
-    function startGame() {
-      score = 0;
-      lives = 3;
-      usedWords = [];
-      wrongWords = [];
-      wrongList.innerHTML = "";
-      gameOverMsg.style.display = "none";
-      input.disabled = false;
-      updateLives();
-      showNewWord();
-      if (!isMuted) startMusic.play();
-    }
-
-    function saveScore() {
-      const name = playerName.value.trim() || "Player";
-      const scores = JSON.parse(localStorage.getItem("scores") || "[]");
-      scores.push({ name, score });
-      scores.sort((a, b) => b.score - a.score);
-      localStorage.setItem("scores", JSON.stringify(scores.slice(0, 10)));
-      displayScores();
-    }
-
-    function displayScores() {
-      const scores = JSON.parse(localStorage.getItem("scores") || "[]");
-      scoreList.innerHTML = scores.map((s, i) => `<li>#${i + 1} ${s.name}: ${s.score}</li>`).join("");
-    }
-
-    function resetScores() {
-      localStorage.removeItem("scores");
-      displayScores();
-    }
-
-    input.addEventListener("input", () => {
-      if (!gameActive) return;
-      if (input.value.trim() === currentWord) {
-        score++;
-        showNewWord();
-      } else if (!currentWord.startsWith(input.value.trim())) {
-        addWrongWord(input.value, currentWord);
-        loseLife();
-        showNewWord();
-      }
-    });
-
-    startBtn.onclick = () => {
-      gameActive = true;
-      startMusic.currentTime = 0;
-      gameOverMusic.pause();
-      gameOverMusic.currentTime = 0;
-      startGame();
-    };
-
-    resetScoreBtn.onclick = resetScores;
-    window.onload = displayScores;
-  </script>
-</body>
+      resetScoreBtn.onclick = resetScores;
+      window.onload = displayScores;
+    </script>
+  </body>
 </html>
