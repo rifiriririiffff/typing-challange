@@ -10,7 +10,7 @@
     <style>
       body {
         font-family: "Orbitron", sans-serif;
-        background: radial-gradient(#0d0d0d, #000);
+        background: radial-gradient(#000000, #1a1a1a);
         color: #ff3d00;
         text-align: center;
         padding: 20px;
@@ -77,14 +77,39 @@
         border-radius: 12px;
         background-color: #000;
       }
-      .floatText {
+      .shake {
+        animation: shake 0.5s ease-in-out;
+      }
+      @keyframes shake {
+        0%,
+        100% {
+          transform: translate(0, 0);
+        }
+        25% {
+          transform: translate(-5px, 5px);
+        }
+        50% {
+          transform: translate(5px, -5px);
+        }
+        75% {
+          transform: translate(-5px, 5px);
+        }
+      }
+      #scoreboard {
+        margin-top: 60px;
+        padding-top: 20px;
+        border-top: 2px solid #ff6f00;
+        color: #fff;
+      }
+      .floatSignal {
         position: absolute;
-        font-size: 1.6em;
+        font-size: 1.4em;
         font-weight: bold;
         animation: floatUp 1s ease-out forwards;
         left: 50%;
         transform: translateX(-50%);
-        top: 60px;
+        top: 100px;
+        pointer-events: none;
       }
       .plus {
         color: lime;
@@ -101,125 +126,115 @@
         }
         100% {
           opacity: 0;
-          transform: translateY(-60px);
+          transform: translateY(-50px);
         }
       }
-      #scoreboard {
-        margin-top: 30px;
+      #statusLight {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        margin: 10px auto 0;
+        background-color: #888;
+        box-shadow: 0 0 10px #888;
+      }
+      #wrongWordsContainer {
+        margin-top: 20px;
         color: #fff;
       }
-      #scoreList li {
+      #wrongWordsContainer ul {
+        list-style: square;
+        padding-left: 30px;
         text-align: left;
-        margin: 5px auto;
-      }
-      .success-score {
-        color: lime;
-      }
-      .failed-score {
-        color: red;
+        display: inline-block;
       }
     </style>
   </head>
   <body>
     <h1>💣 TYPING BOMB MISSION</h1>
+    <div id="statusLight"></div>
     <div id="gameArea">
       <audio id="startMusic" src="startaction.mp3" loop></audio>
-      <audio id="successSound" src="success.mp3"></audio>
+      <audio id="tickSound" src="tick.mp3" loop></audio>
       <audio id="bombSound" src="bomb.mp3"></audio>
       <audio id="missionFailedSound" src="missionfailed.mp3"></audio>
+      <audio id="successSound" src="success.mp3"></audio>
 
       <div id="quote">Press Start!</div>
       <textarea id="input" disabled placeholder="Type here..."></textarea>
+      <div
+        id="pressSpace"
+        style="display: none; font-weight: bold; color: lime"
+      >
+        ✅ PRESS SPACE!!
+      </div>
       <div id="bombTimer">💣 Timer: 20s</div>
-
+      <div
+        id="gameOverDisplay"
+        style="
+          font-size: 1.5em;
+          font-weight: bold;
+          color: red;
+          margin-top: 10px;
+        "
+      ></div>
       <input type="text" id="playerName" placeholder="Enter your codename" />
       <button class="btn" id="startBtn">Start Mission</button>
 
-      <div id="scoreboard">
-        <h3>Top Agents</h3>
-        <ul id="scoreList"></ul>
-        <button class="btn" id="resetScoreBtn">Reset Leaderboard</button>
+      <div id="wrongWordsContainer">
+        <h4>Incorrect Entries:</h4>
+        <ul id="wrongWordsList"></ul>
       </div>
     </div>
 
+    <div id="scoreboard">
+      <h3>Top Agents</h3>
+      <ul id="scoreList"></ul>
+      <button class="btn" id="resetScoreBtn">Reset Leaderboard</button>
+    </div>
+
     <script>
+      const startBtn = document.getElementById("startBtn");
       const input = document.getElementById("input");
       const quote = document.getElementById("quote");
+      const pressSpace = document.getElementById("pressSpace");
       const bombTimer = document.getElementById("bombTimer");
-      const startBtn = document.getElementById("startBtn");
-      const playerName = document.getElementById("playerName");
+      const gameOverDisplay = document.getElementById("gameOverDisplay");
       const scoreList = document.getElementById("scoreList");
-      const resetScoreBtn = document.getElementById("resetScoreBtn");
+      const playerName = document.getElementById("playerName");
+      const statusLight = document.getElementById("statusLight");
+      const wrongWordsList = document.getElementById("wrongWordsList");
+
       const startMusic = document.getElementById("startMusic");
-      const successSound = document.getElementById("successSound");
+      const tickSound = document.getElementById("tickSound");
       const bombSound = document.getElementById("bombSound");
       const missionFailedSound = document.getElementById("missionFailedSound");
+      const successSound = document.getElementById("successSound");
 
-      let currentWord = "",
-        timeLeft = 20,
-        timerInterval,
-        gameActive = false,
-        score = 0,
-        missionSuccess = false;
-      const usedWords = [],
-        easyWords = [
-          "cat",
-          "dog",
-          "box",
-          "sun",
-          "red",
-          "run",
-          "car",
-          "man",
-          "pen",
-          "hat",
-        ],
-        mediumWords = [
-          "agent",
-          "spy",
-          "bomb",
-          "timer",
-          "mission",
-          "code",
-          "laser",
-          "intel",
-          "target",
-          "escape",
-          "map",
-          "safe",
-          "file",
-          "key",
-          "alert",
-          "track",
-          "enemy",
-          "decode",
-          "brief",
-          "vault",
-        ],
-        hardWords = [
-          "surveillance",
-          "decryption",
-          "disguise",
-          "detonate",
-          "protocol",
-          "cipher",
-          "tactical",
-          "infiltrate",
-          "counterintelligence",
-          "encrypted",
-          "interception",
-          "exfiltration",
-        ];
+      let words = [
+        "mission",
+        "agent",
+        "intel",
+        "decode",
+        "explosion",
+        "safehouse",
+        "exfiltrate",
+        "surveillance",
+        "detonation",
+        "briefcase",
+      ];
+      let score = 0;
+      let timer = 20;
+      let timerInterval;
+      let currentWord = "";
+      let usedWords = [];
+      let gameActive = false;
+      let wrongWords = [];
 
       function getNewWord() {
-        let wordPool;
-        if (score < 5) wordPool = easyWords;
-        else if (score < 10) wordPool = mediumWords;
-        else wordPool = hardWords;
-
+        if (usedWords.length === words.length) usedWords = [];
         let word;
         do {
-          word = wordPool[Math.floor(Math.random() * wordPool.length)];
+          word = words[Math.floor(Math.random() * words.length)];
         } while (usedWords.includes(word));
         usedWords.push(word);
         return word;
@@ -229,45 +244,68 @@
         currentWord = getNewWord();
         quote.textContent = currentWord;
         input.value = "";
+        pressSpace.style.display = "none";
         input.focus();
       }
 
-      function updateBombTimer() {
-        const emoji = timeLeft > 0 ? "💣" : "💥";
-        bombTimer.textContent = `${emoji} Timer: ${Math.max(timeLeft, 0)}s`;
+      function updateTimerDisplay() {
+        bombTimer.textContent = `💣 Timer: ${timer}s`;
       }
 
-      function showFloatText(text, type) {
+      function floatSignal(text, type) {
         const float = document.createElement("div");
-        float.className = `floatText ${type}`;
-        float.innerText = text;
+        float.className = `floatSignal ${type}`;
+        float.textContent = text;
         document.getElementById("gameArea").appendChild(float);
         setTimeout(() => float.remove(), 1000);
       }
 
-      function saveScore() {
+      function triggerShake() {
+        document.body.classList.add("shake");
+        setTimeout(() => document.body.classList.remove("shake"), 500);
+      }
+
+      function setStatusLight(color) {
+        statusLight.style.backgroundColor = color;
+        statusLight.style.boxShadow = `0 0 15px ${color}`;
+      }
+
+      function endGame(success = false) {
+        clearInterval(timerInterval);
+        input.disabled = true;
+        gameActive = false;
+        tickSound.pause();
+        startMusic.pause();
+        if (success) {
+          gameOverDisplay.innerText = "MISSION SUCCESS";
+          successSound.play();
+        } else {
+          gameOverDisplay.innerText = "MISSION FAILED";
+          triggerShake();
+          bombSound.play();
+          missionFailedSound.play();
+        }
+        saveScore(success);
+      }
+
+      function saveScore(success) {
         const name = playerName.value.trim() || "Agent";
         const scores = JSON.parse(localStorage.getItem("scores") || "[]");
-        scores.push({ name, score, missionSuccess });
+        scores.push({ name, score, success });
         scores.sort((a, b) => b.score - a.score);
-        localStorage.setItem("scores", JSON.stringify(scores.slice(0, 5)));
+        localStorage.setItem("scores", JSON.stringify(scores.slice(0, 10)));
         displayScores();
       }
 
       function displayScores() {
         const scores = JSON.parse(localStorage.getItem("scores") || "[]");
         scoreList.innerHTML = scores
-          .map((s, i) => {
-            const statusClass = s.missionSuccess
-              ? "success-score"
-              : "failed-score";
-            const statusText = s.missionSuccess
-              ? `✅ SUCCESS - ${s.score} pts`
-              : `❌ FAILED - ${s.score} pts`;
-            return `<li class="${statusClass}">#${i + 1} ${
-              s.name
-            }: ${statusText}</li>`;
-          })
+          .map(
+            (s) =>
+              `<li style="color: ${s.success ? "lime" : "red"}">${s.name}: ${
+                s.score
+              } (${s.success ? "Success" : "Failed"})</li>`
+          )
           .join("");
       }
 
@@ -276,79 +314,66 @@
         displayScores();
       }
 
-      function endGame(success = false) {
-        gameActive = false;
-        missionSuccess = success;
-        clearInterval(timerInterval);
-        input.disabled = true;
-        if (success) {
-          input.value = "MISSION SUCCESS ✅";
-          successSound.play();
-        } else {
-          input.value = "MISSION FAILED";
-          input.style.fontSize = "2.5em";
-          bombSound.play();
-          missionFailedSound.play();
-        }
-        updateBombTimer();
-        startMusic.pause();
-        startMusic.currentTime = 0;
-        saveScore();
-      }
-
       function startGame() {
-        timeLeft = 20;
         score = 0;
-        missionSuccess = false;
-        usedWords.length = 0;
+        timer = 20;
+        usedWords = [];
+        wrongWords = [];
+        wrongWordsList.innerHTML = "";
         input.disabled = false;
-        input.value = "";
-        input.style.fontSize = "1.2em";
-        gameActive = true;
+        gameOverDisplay.innerText = "";
         showNewWord();
-        updateBombTimer();
+        updateTimerDisplay();
+        gameActive = true;
+        startMusic.currentTime = 0;
         startMusic.play();
-        clearInterval(timerInterval);
+        tickSound.currentTime = 0;
+        tickSound.play();
         timerInterval = setInterval(() => {
-          timeLeft--;
-          updateBombTimer();
-          if (timeLeft <= 0) endGame();
+          timer--;
+          updateTimerDisplay();
+          if (timer <= 0) endGame(false);
         }, 1000);
       }
 
       input.addEventListener("input", () => {
         if (!gameActive) return;
         const typed = input.value.trim();
-        if (typed === currentWord) {
-          timeLeft += 5;
-          score++;
-          showFloatText("+5s", "plus");
-          updateBombTimer();
-          if (timeLeft >= 40) endGame(true);
-          else showNewWord();
-        } else if (!currentWord.startsWith(typed)) {
-          timeLeft -= 6;
-          showFloatText("-6s", "minus");
-          if (timeLeft <= 0) endGame();
-          else {
-            updateBombTimer();
+        pressSpace.style.display =
+          typed.length === currentWord.length ? "block" : "none";
+      });
+
+      input.addEventListener("keydown", (e) => {
+        if (!gameActive) return;
+        if (e.code === "Space") {
+          e.preventDefault();
+          const typed = input.value.trim();
+          if (typed === currentWord) {
+            score++;
+            timer = Math.min(100, timer + 5);
+            floatSignal("+5s", "plus");
+            setStatusLight("lime");
             showNewWord();
+            updateTimerDisplay();
+            if (timer >= 100) endGame(true);
+          } else {
+            wrongWords.push(`${typed} ❌ -> ${currentWord}`);
+            const li = document.createElement("li");
+            li.textContent = `${typed} ❌ -> ${currentWord}`;
+            wrongWordsList.appendChild(li);
+            timer -= 6;
+            floatSignal("-6s", "minus");
+            setStatusLight("red");
+            triggerShake();
+            showNewWord();
+            updateTimerDisplay();
+            if (timer <= 0) endGame(false);
           }
         }
       });
 
-      startBtn.onclick = () => {
-        successSound.pause();
-        missionFailedSound.pause();
-        bombSound.pause();
-        successSound.currentTime = 0;
-        missionFailedSound.currentTime = 0;
-        bombSound.currentTime = 0;
-        startMusic.currentTime = 0;
-        startGame();
-      };
-
-      resetScoreBtn.onclick = resetScores;
+      startBtn.addEventListener("click", startGame);
+      document.getElementById("resetScoreBtn").onclick = resetScores;
       window.onload = displayScores;
     </script>
   </body>
