@@ -77,8 +77,7 @@
         border-radius: 12px;
         background-color: #000;
       }
-      .shake {
-        animation: shake 0.5s ease-in-out;
+
       }
       @keyframes shake {
         0%,
@@ -147,9 +146,30 @@
         text-align: left;
         display: inline-block;
       }
+      #speedrunTimerBox {
+        position: fixed;
+        top: 15px;
+        right: 25px;
+        background: rgba(0, 0, 0, 0.6);
+        border: 2px solid red;
+        border-radius: 10px;
+        padding: 8px 14px;
+        z-index: 9999;
+        min-width: 80px;
+        text-align: center;
+      }
+      #speedrunTimer {
+        font-family: "Courier New", Courier, monospace;
+        color: red;
+        font-size: 20px;
+        font-weight: bold;
+        letter-spacing: 1px;
+      }
     </style>
   </head>
   <body>
+    <div id="speedrunTimerBox"><div id="speedrunTimer">00:00</div></div>
+
     <h1>💣 TYPING BOMB MISSION</h1>
     <div id="statusLight"></div>
     <div id="gameArea">
@@ -158,6 +178,8 @@
       <audio id="bombSound" src="bomb.mp3"></audio>
       <audio id="missionFailedSound" src="missionfailed.mp3"></audio>
       <audio id="successSound" src="success.mp3"></audio>
+      <audio id="keepGoingSound" src="keepgoing.mp3"></audio>
+      <audio id="comeOnSound" src="comeon.mp3"></audio>
 
       <div id="quote">Press Start!</div>
       <textarea id="input" disabled placeholder="Type here..."></textarea>
@@ -193,43 +215,75 @@
     </div>
 
     <script>
-      const startBtn = document.getElementById("startBtn");
       const input = document.getElementById("input");
+      const startBtn = document.getElementById("startBtn");
       const quote = document.getElementById("quote");
-      const pressSpace = document.getElementById("pressSpace");
       const bombTimer = document.getElementById("bombTimer");
-      const gameOverDisplay = document.getElementById("gameOverDisplay");
-      const scoreList = document.getElementById("scoreList");
+      const pressSpace = document.getElementById("pressSpace");
       const playerName = document.getElementById("playerName");
-      const statusLight = document.getElementById("statusLight");
       const wrongWordsList = document.getElementById("wrongWordsList");
+      const scoreList = document.getElementById("scoreList");
+      const gameOverDisplay = document.getElementById("gameOverDisplay");
+      const statusLight = document.getElementById("statusLight");
 
       const startMusic = document.getElementById("startMusic");
       const tickSound = document.getElementById("tickSound");
       const bombSound = document.getElementById("bombSound");
       const missionFailedSound = document.getElementById("missionFailedSound");
       const successSound = document.getElementById("successSound");
+      const keepGoingSound = document.getElementById("keepGoingSound");
+      const comeOnSound = document.getElementById("comeOnSound");
+
+      startMusic.volume = 0.8;
+      bombSound.volume = 0.3;
+      successSound.volume = 1.0;
+      missionFailedSound.volume = 1.0;
+      keepGoingSound.volume = 0.8;
+      comeOnSound.volume = 1.0;
 
       let words = [
-        "mission",
-        "agent",
-        "intel",
+        "safe",
+        "code",
+        "trap",
+        "hide",
+        "fire",
+        "signal",
+        "rocket",
+        "launch",
         "decode",
-        "explosion",
-        "safehouse",
-        "exfiltrate",
-        "surveillance",
-        "detonation",
-        "briefcase",
+        "tracking",
+        "password",
+        "override",
+        "explosive",
+        "interface",
+        "hologram",
+        "database",
       ];
-      let score = 0;
-      let timer = 20;
-      let timerInterval;
-      let currentWord = "";
-      let usedWords = [];
-      let gameActive = false;
-      let wrongWords = [];
+      let score = 0,
+        timer = 20,
+        currentWord = "",
+        usedWords = [],
+        gameActive = false;
+      let keepGoingPlayed = false,
+        timerInterval,
+        speedrunStart = 0,
+        speedrunRAF;
 
+      function floatSignal(text, type) {
+        const float = document.createElement("div");
+        float.className = `floatSignal ${type}`;
+        float.textContent = text;
+        document.getElementById("gameArea").appendChild(float);
+        setTimeout(() => float.remove(), 1000);
+      }
+      function setStatusLight(color) {
+        statusLight.style.backgroundColor = color;
+        statusLight.style.boxShadow = `0 0 15px ${color}`;
+      }
+      function triggerShake() {
+        document.body.classList.add("shake");
+        setTimeout(() => document.body.classList.remove("shake"), 500);
+      }
       function getNewWord() {
         if (usedWords.length === words.length) usedWords = [];
         let word;
@@ -239,7 +293,6 @@
         usedWords.push(word);
         return word;
       }
-
       function showNewWord() {
         currentWord = getNewWord();
         quote.textContent = currentWord;
@@ -247,35 +300,68 @@
         pressSpace.style.display = "none";
         input.focus();
       }
-
       function updateTimerDisplay() {
         bombTimer.textContent = `💣 Timer: ${timer}s`;
       }
-
-      function floatSignal(text, type) {
-        const float = document.createElement("div");
-        float.className = `floatSignal ${type}`;
-        float.textContent = text;
-        document.getElementById("gameArea").appendChild(float);
-        setTimeout(() => float.remove(), 1000);
+      function updateSpeedrunTimer() {
+        const elapsed = performance.now() - speedrunStart;
+        const s = Math.floor(elapsed / 1000)
+          .toString()
+          .padStart(2, "0");
+        const ms = Math.floor((elapsed % 1000) / 10)
+          .toString()
+          .padStart(2, "0");
+        document.getElementById("speedrunTimer").textContent = `${s}:${ms}`;
+        speedrunRAF = requestAnimationFrame(updateSpeedrunTimer);
       }
-
-      function triggerShake() {
-        document.body.classList.add("shake");
-        setTimeout(() => document.body.classList.remove("shake"), 500);
+      function startSpeedrunTimer() {
+        speedrunStart = performance.now();
+        cancelAnimationFrame(speedrunRAF);
+        updateSpeedrunTimer();
       }
-
-      function setStatusLight(color) {
-        statusLight.style.backgroundColor = color;
-        statusLight.style.boxShadow = `0 0 15px ${color}`;
+      function stopSpeedrunTimer() {
+        cancelAnimationFrame(speedrunRAF);
+      }
+      function getFinalSeconds() {
+        return Math.floor((performance.now() - speedrunStart) / 1000);
+      }
+      function saveScore(success) {
+        const name = playerName.value.trim() || "Agent";
+        const scores = JSON.parse(localStorage.getItem("scores") || "[]");
+        scores.push({ name, score, success, time: getFinalSeconds() });
+        scores.sort((a, b) => b.score - a.score);
+        localStorage.setItem("scores", JSON.stringify(scores.slice(0, 10)));
+        displayScores();
+      }
+      function displayScores() {
+        const scores = JSON.parse(localStorage.getItem("scores") || "[]");
+        scoreList.innerHTML = scores
+          .map((s) => {
+            const min = String(Math.floor(s.time / 60)).padStart(2, "0");
+            const sec = String(s.time % 60).padStart(2, "0");
+            return `<li style="color: ${s.success ? "lime" : "red"}">${
+              s.name
+            }: ${s.score} (${
+              s.success ? "Success" : "Failed"
+            }) - ⏱️ ${min}:${sec}</li>`;
+          })
+          .join("");
       }
 
       function endGame(success = false) {
         clearInterval(timerInterval);
+        cancelAnimationFrame(speedrunRAF);
         input.disabled = true;
         gameActive = false;
         tickSound.pause();
+        tickSound.currentTime = 0;
         startMusic.pause();
+        startMusic.currentTime = 0;
+        comeOnSound.pause();
+        comeOnSound.currentTime = 0;
+        keepGoingSound.pause();
+        keepGoingSound.currentTime = 0;
+
         if (success) {
           gameOverDisplay.innerText = "MISSION SUCCESS";
           successSound.play();
@@ -285,53 +371,37 @@
           bombSound.play();
           missionFailedSound.play();
         }
+
         saveScore(success);
-      }
-
-      function saveScore(success) {
-        const name = playerName.value.trim() || "Agent";
-        const scores = JSON.parse(localStorage.getItem("scores") || "[]");
-        scores.push({ name, score, success });
-        scores.sort((a, b) => b.score - a.score);
-        localStorage.setItem("scores", JSON.stringify(scores.slice(0, 10)));
-        displayScores();
-      }
-
-      function displayScores() {
-        const scores = JSON.parse(localStorage.getItem("scores") || "[]");
-        scoreList.innerHTML = scores
-          .map(
-            (s) =>
-              `<li style="color: ${s.success ? "lime" : "red"}">${s.name}: ${
-                s.score
-              } (${s.success ? "Success" : "Failed"})</li>`
-          )
-          .join("");
-      }
-
-      function resetScores() {
-        localStorage.removeItem("scores");
-        displayScores();
       }
 
       function startGame() {
         score = 0;
         timer = 20;
         usedWords = [];
-        wrongWords = [];
         wrongWordsList.innerHTML = "";
-        input.disabled = false;
         gameOverDisplay.innerText = "";
+        input.disabled = false;
+        gameActive = true;
+        keepGoingPlayed = false;
+
         showNewWord();
         updateTimerDisplay();
-        gameActive = true;
+        startSpeedrunTimer();
+        comeOnSound.play();
+
         startMusic.currentTime = 0;
         startMusic.play();
         tickSound.currentTime = 0;
         tickSound.play();
+
         timerInterval = setInterval(() => {
           timer--;
           updateTimerDisplay();
+          if (timer >= 50 && !keepGoingPlayed) {
+            keepGoingSound.play();
+            keepGoingPlayed = true;
+          }
           if (timer <= 0) endGame(false);
         }, 1000);
       }
@@ -342,7 +412,6 @@
         pressSpace.style.display =
           typed.length === currentWord.length ? "block" : "none";
       });
-
       input.addEventListener("keydown", (e) => {
         if (!gameActive) return;
         if (e.code === "Space") {
@@ -350,19 +419,18 @@
           const typed = input.value.trim();
           if (typed === currentWord) {
             score++;
-            timer = Math.min(100, timer + 5);
+            timer = Math.min(80, timer + 5);
             floatSignal("+5s", "plus");
             setStatusLight("lime");
             showNewWord();
             updateTimerDisplay();
-            if (timer >= 100) endGame(true);
+            if (timer >= 80) endGame(true);
           } else {
-            wrongWords.push(`${typed} ❌ -> ${currentWord}`);
             const li = document.createElement("li");
             li.textContent = `${typed} ❌ -> ${currentWord}`;
             wrongWordsList.appendChild(li);
-            timer -= 6;
-            floatSignal("-6s", "minus");
+            timer -= 5;
+            floatSignal("-5s", "minus");
             setStatusLight("red");
             triggerShake();
             showNewWord();
@@ -371,9 +439,11 @@
           }
         }
       });
-
       startBtn.addEventListener("click", startGame);
-      document.getElementById("resetScoreBtn").onclick = resetScores;
+      document.getElementById("resetScoreBtn").onclick = () => {
+        localStorage.removeItem("scores");
+        displayScores();
+      };
       window.onload = displayScores;
     </script>
   </body>
