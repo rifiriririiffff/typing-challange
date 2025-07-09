@@ -286,12 +286,20 @@
         "calculation",
         "misscalculation",
         "execute",
+        "secret",
+        "command",
+        "leader",
+        "headquarters",
+        "agency",
+        "machine",
       ];
+
       let score = 0,
         timer = 10,
         currentWord = "",
         usedWords = [],
         gameActive = false;
+
       let keepGoingPlayed = false,
         timerInterval,
         speedrunStart = 0,
@@ -389,7 +397,7 @@
 
       function startGame() {
         score = 0;
-        timer = 10;
+        timer = 10; // ✅ Timer bomb bermula dari 10 saat
         usedWords = [];
         wrongWordsList.innerHTML = "";
         gameOverDisplay.innerText = "";
