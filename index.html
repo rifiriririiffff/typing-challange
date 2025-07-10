@@ -15,21 +15,30 @@
         text-align: center;
         padding: 20px;
       }
-      h1 {
-        font-size: 2em;
-        color: #ff6f00;
-        text-shadow: 0 0 30px red;
-        animation: pulse 2s infinite;
+
+      .title-image img {
+  width: 100%;               
+  max-width: 340px;          
+  height: auto;              
+  max-height: 340px;         
+  object-fit: contain;       
+  display: block;
+  margin: 0 auto;
+  filter: drop-shadow(0 0 15px red)
+}
+
       }
-      @keyframes pulse {
-        0%,
-        100% {
-          text-shadow: 0 0 30px red;
-        }
-        50% {
-          text-shadow: 0 0 10px orange;
-        }
+      .title-image img {
+        width: 100%;
+        max-width: 700px;
+        height: auto;
+        max-height: 90px;
+        object-fit: contain;
+        display: block;
+        margin: 0 auto;
+        filter: drop-shadow(0 0 15px red);
       }
+
       #gameArea {
         max-width: 700px;
         margin: auto;
@@ -40,11 +49,13 @@
         box-shadow: 0 0 30px rgba(255, 0, 0, 0.9);
         position: relative;
       }
+
       #quote {
         font-size: 1.7em;
         margin: 20px 0;
         color: #ffffff;
       }
+
       textarea {
         width: 90%;
         height: 80px;
@@ -56,6 +67,7 @@
         border-radius: 8px;
         color: #ff5722;
       }
+
       .btn {
         margin: 10px 5px;
         padding: 12px 25px;
@@ -77,9 +89,49 @@
         border-radius: 12px;
         background-color: #000;
       }
-      .shake {
-        animation: shake 0.5s ease-in-out;
+
+      #statusLight {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        margin: 10px auto 0;
+        background-color: #888;
+        box-shadow: 0 0 10px #888;
       }
+
+      .floatSignal {
+        position: absolute;
+        font-size: 1.5em;
+        font-weight: bold;
+        animation: floatUp 1s ease-out forwards;
+        left: 50%;
+        transform: translateX(-50%);
+        top: 100px;
+        pointer-events: none;
+        z-index: 9999;
+      }
+
+      .plus {
+        color: lime;
+        text-shadow: 0 0 10px lime;
+      }
+
+      .minus {
+        color: red;
+        text-shadow: 0 0 10px red;
+      }
+
+      @keyframes floatUp {
+        0% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        100% {
+          opacity: 0;
+          transform: translateY(-50px);
+        }
+      }
+
       @keyframes shake {
         0%,
         100% {
@@ -95,58 +147,11 @@
           transform: translate(-5px, 5px);
         }
       }
-      #scoreboard {
-        margin-top: 60px;
-        padding-top: 20px;
-        border-top: 2px solid #ff6f00;
-        color: #fff;
+
+      .shake {
+        animation: shake 0.5s ease-in-out;
       }
-      .floatSignal {
-        position: absolute;
-        font-size: 1.4em;
-        font-weight: bold;
-        animation: floatUp 1s ease-out forwards;
-        left: 50%;
-        transform: translateX(-50%);
-        top: 100px;
-        pointer-events: none;
-      }
-      .plus {
-        color: lime;
-        text-shadow: 0 0 10px lime;
-      }
-      .minus {
-        color: red;
-        text-shadow: 0 0 10px red;
-      }
-      @keyframes floatUp {
-        0% {
-          opacity: 1;
-          transform: translateY(0);
-        }
-        100% {
-          opacity: 0;
-          transform: translateY(-50px);
-        }
-      }
-      #statusLight {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        margin: 10px auto 0;
-        background-color: #888;
-        box-shadow: 0 0 10px #888;
-      }
-      #wrongWordsContainer {
-        margin-top: 20px;
-        color: #fff;
-      }
-      #wrongWordsContainer ul {
-        list-style: square;
-        padding-left: 30px;
-        text-align: left;
-        display: inline-block;
-      }
+
       #speedrunTimerBox {
         position: fixed;
         top: 15px;
@@ -159,6 +164,7 @@
         min-width: 80px;
         text-align: center;
       }
+
       #speedrunTimer {
         font-family: "Courier New", Courier, monospace;
         color: red;
@@ -166,15 +172,32 @@
         font-weight: bold;
         letter-spacing: 1px;
       }
+
+      #wrongWordsContainer ul {
+        list-style: square;
+        padding-left: 30px;
+        text-align: left;
+        display: inline-block;
+      }
+
+      #scoreboard {
+        margin-top: 60px;
+        padding-top: 20px;
+        border-top: 2px solid #ff6f00;
+        color: #fff;
+      }
     </style>
   </head>
   <body>
     <div id="speedrunTimerBox"><div id="speedrunTimer">00:00</div></div>
 
-    <h1>💣 TYPING BOMB MISSION</h1>
+    <div class="title-image">
+      <img src="tittle.png" alt="Typing Bomb Mission" />
+    </div>
+
     <div id="statusLight"></div>
+
     <div id="gameArea">
-      <!-- AUDIO -->
       <audio id="startMusic" src="startaction.mp3" loop></audio>
       <audio id="tickSound" src="tick.mp3" loop></audio>
       <audio id="bombSound" src="bomb.mp3"></audio>
@@ -203,6 +226,7 @@
       ></div>
       <input type="text" id="playerName" placeholder="Enter your codename" />
       <button class="btn" id="startBtn">Start Mission</button>
+
       <div id="wrongWordsContainer">
         <h4>Incorrect Entries:</h4>
         <ul id="wrongWordsList"></ul>
@@ -214,254 +238,222 @@
       <ul id="scoreList"></ul>
       <button class="btn" id="resetScoreBtn">Reset Leaderboard</button>
     </div>
+  </body>
+</html>
+<script>
+  const input = document.getElementById("input");
+  const startBtn = document.getElementById("startBtn");
+  const quote = document.getElementById("quote");
+  const bombTimer = document.getElementById("bombTimer");
+  const pressSpace = document.getElementById("pressSpace");
+  const playerName = document.getElementById("playerName");
+  const wrongWordsList = document.getElementById("wrongWordsList");
+  const scoreList = document.getElementById("scoreList");
+  const gameOverDisplay = document.getElementById("gameOverDisplay");
+  const statusLight = document.getElementById("statusLight");
 
-    <script>
-      const input = document.getElementById("input");
-      const startBtn = document.getElementById("startBtn");
-      const quote = document.getElementById("quote");
-      const bombTimer = document.getElementById("bombTimer");
-      const pressSpace = document.getElementById("pressSpace");
-      const playerName = document.getElementById("playerName");
-      const wrongWordsList = document.getElementById("wrongWordsList");
-      const scoreList = document.getElementById("scoreList");
-      const gameOverDisplay = document.getElementById("gameOverDisplay");
-      const statusLight = document.getElementById("statusLight");
+  const startMusic = document.getElementById("startMusic");
+  const tickSound = document.getElementById("tickSound");
+  const bombSound = document.getElementById("bombSound");
+  const missionFailedSound = document.getElementById("missionFailedSound");
+  const successSound = document.getElementById("successSound");
+  const keepGoingSound = document.getElementById("keepGoingSound");
+  const comeOnSound = document.getElementById("comeOnSound");
 
-      const startMusic = document.getElementById("startMusic");
-      const tickSound = document.getElementById("tickSound");
-      const bombSound = document.getElementById("bombSound");
-      const missionFailedSound = document.getElementById("missionFailedSound");
-      const successSound = document.getElementById("successSound");
-      const keepGoingSound = document.getElementById("keepGoingSound");
-      const comeOnSound = document.getElementById("comeOnSound");
+  startMusic.volume = 0.9;
+  bombSound.volume = 0.5;
+  successSound.volume = 1.0;
+  missionFailedSound.volume = 1.0;
+  keepGoingSound.volume = 1.0;
+  comeOnSound.volume = 1.0;
 
-      startMusic.volume = 0.9;
-      bombSound.volume = 0.5;
-      successSound.volume = 1.0;
-      missionFailedSound.volume = 1.0;
-      keepGoingSound.volume = 1.0;
-      comeOnSound.volume = 1.0;
+  const words = [
+    "lock","chip","trap","mask","scan","plan","hide","data","exit","find",
+    "access","target","cipher","weapon","safety","escape","backup","rocket",
+    "launch","manual","bullet","database","password","protocol","mission",
+    "tracking","override","operation","hologram","interface","explosive",
+    "blueprint","signal","dollar","time","rocket","nuclear","general",
+    "function","disenchanted","calculation","misscalculation","execute",
+    "secret","command","leader","headquarters","agency","machine"
+  ];
 
-      let words = [
-        "lock",
-        "chip",
-        "trap",
-        "mask",
-        "scan",
-        "plan",
-        "hide",
-        "data",
-        "exit",
-        "find",
-        "access",
-        "target",
-        "cipher",
-        "weapon",
-        "safety",
-        "escape",
-        "backup",
-        "rocket",
-        "launch",
-        "manual",
-        "bullet",
-        "database",
-        "password",
-        "protocol",
-        "mission",
-        "tracking",
-        "override",
-        "operation",
-        "hologram",
-        "interface",
-        "explosive",
-        "blueprint",
-        "signal",
-        "dollar",
-        "time",
-        "rocket",
-        "nuclear",
-        "general",
-        "function",
-        "disenchanted",
-        "calculation",
-        "misscalculation",
-        "execute",
-        "secret",
-        "command",
-        "leader",
-        "headquarters",
-        "agency",
-        "machine",
-      ];
+  let score = 0, timer = 10, currentWord = "", usedWords = [], gameActive = false;
+  let keepGoingPlayed = false, timerInterval, speedrunStart = 0, speedrunRAF;
 
-      let score = 0,
-        timer = 10,
-        currentWord = "",
-        usedWords = [],
-        gameActive = false;
+  function floatSignal(text, type) {
+    const float = document.createElement("div");
+    float.className = `floatSignal ${type}`;
+    float.textContent = text;
+    document.getElementById("gameArea").appendChild(float);
+    setTimeout(() => float.remove(), 1000);
+  }
 
-      let keepGoingPlayed = false,
-        timerInterval,
-        speedrunStart = 0,
-        speedrunRAF;
+  function triggerShake() {
+    document.body.classList.add("shake");
+    setTimeout(() => document.body.classList.remove("shake"), 500);
+  }
 
-      function floatSignal(text, type) {
-        const float = document.createElement("div");
-        float.className = `floatSignal ${type}`;
-        float.textContent = text;
-        document.getElementById("gameArea").appendChild(float);
-        setTimeout(() => float.remove(), 1000);
+  function setStatusLight(color) {
+    statusLight.style.backgroundColor = color;
+    statusLight.style.boxShadow = `0 0 15px ${color}`;
+  }
+
+  function getNewWord() {
+    if (usedWords.length === words.length) usedWords = [];
+    let word;
+    do {
+      word = words[Math.floor(Math.random() * words.length)];
+    } while (usedWords.includes(word));
+    usedWords.push(word);
+    return word;
+  }
+
+  function showNewWord() {
+    currentWord = getNewWord();
+    quote.textContent = currentWord;
+    input.value = "";
+    pressSpace.style.display = "none";
+    input.focus();
+  }
+
+  function updateTimerDisplay() {
+    bombTimer.textContent = `💣 Timer: ${timer}s`;
+  }
+
+  function updateSpeedrunTimer() {
+    const elapsed = performance.now() - speedrunStart;
+    const s = Math.floor(elapsed / 1000).toString().padStart(2, "0");
+    const ms = Math.floor((elapsed % 1000) / 10).toString().padStart(2, "0");
+    document.getElementById("speedrunTimer").textContent = `${s}:${ms}`;
+    speedrunRAF = requestAnimationFrame(updateSpeedrunTimer);
+  }
+
+  function startSpeedrunTimer() {
+    speedrunStart = performance.now();
+    cancelAnimationFrame(speedrunRAF);
+    updateSpeedrunTimer();
+  }
+
+  function stopSpeedrunTimer() {
+    cancelAnimationFrame(speedrunRAF);
+  }
+
+  function saveScore(name, time, status) {
+    const scores = JSON.parse(localStorage.getItem("scores") || "[]");
+    scores.push({ name, time, status });
+    scores.sort((a, b) => {
+      if (a.status === "SUCCESS" && b.status !== "SUCCESS") return -1;
+      if (a.status !== "SUCCESS" && b.status === "SUCCESS") return 1;
+      return a.time - b.time;
+    });
+    localStorage.setItem("scores", JSON.stringify(scores.slice(0, 500)));
+    renderScores();
+  }
+
+  function renderScores() {
+    const scores = JSON.parse(localStorage.getItem("scores") || "[]");
+    scoreList.innerHTML = "";
+    scores.forEach((s, i) => {
+      const li = document.createElement("li");
+      li.innerHTML = `<b>${i + 1}. ${s.name}</b> — <span style="color:${
+        s.status === "SUCCESS" ? "lime" : "red"
+      }">${s.status}</span> <small>(${(s.time / 1000).toFixed(2)}s)</small>`;
+      scoreList.appendChild(li);
+    });
+  }
+
+  function endGame(success = false) {
+    clearInterval(timerInterval);
+    stopSpeedrunTimer();
+    input.disabled = true;
+    gameActive = false;
+    [startMusic, tickSound, bombSound, successSound, missionFailedSound, keepGoingSound, comeOnSound].forEach(a => {
+      a.pause();
+      a.currentTime = 0;
+    });
+    const name = playerName.value.trim() || "UNKNOWN";
+    const finalTime = performance.now() - speedrunStart;
+    if (success) {
+      gameOverDisplay.innerText = "MISSION SUCCESS";
+      successSound.play();
+      saveScore(name, finalTime, "SUCCESS");
+    } else {
+      gameOverDisplay.innerText = "MISSION FAILED";
+      triggerShake();
+      bombSound.play();
+      missionFailedSound.play();
+      saveScore(name, finalTime, "FAILED");
+    }
+  }
+
+  function startGame() {
+    score = 0;
+    timer = 10;
+    usedWords = [];
+    wrongWordsList.innerHTML = "";
+    gameOverDisplay.innerText = "";
+    input.disabled = false;
+    gameActive = true;
+    keepGoingPlayed = false;
+
+    showNewWord();
+    updateTimerDisplay();
+    startSpeedrunTimer();
+    comeOnSound.play();
+    startMusic.play();
+    tickSound.play();
+
+    timerInterval = setInterval(() => {
+      timer--;
+      updateTimerDisplay();
+      if (timer >= 50 && !keepGoingPlayed) {
+        keepGoingSound.play();
+        keepGoingPlayed = true;
       }
+      if (timer <= 0) endGame(false);
+    }, 1000);
+  }
 
-      function setStatusLight(color) {
-        statusLight.style.backgroundColor = color;
-        statusLight.style.boxShadow = `0 0 15px ${color}`;
-      }
+  input.addEventListener("input", () => {
+    if (!gameActive) return;
+    const typed = input.value.trim();
+    pressSpace.style.display = typed.length === currentWord.length ? "block" : "none";
+  });
 
-      function triggerShake() {
-        document.body.classList.add("shake");
-        setTimeout(() => document.body.classList.remove("shake"), 500);
-      }
-
-      function getNewWord() {
-        if (usedWords.length === words.length) usedWords = [];
-        let word;
-        do {
-          word = words[Math.floor(Math.random() * words.length)];
-        } while (usedWords.includes(word));
-        usedWords.push(word);
-        return word;
-      }
-
-      function showNewWord() {
-        currentWord = getNewWord();
-        quote.textContent = currentWord;
-        input.value = "";
-        pressSpace.style.display = "none";
-        input.focus();
-      }
-
-      function updateTimerDisplay() {
-        bombTimer.textContent = `💣 Timer: ${timer}s`;
-      }
-
-      function updateSpeedrunTimer() {
-        const elapsed = performance.now() - speedrunStart;
-        const s = Math.floor(elapsed / 1000)
-          .toString()
-          .padStart(2, "0");
-        const ms = Math.floor((elapsed % 1000) / 10)
-          .toString()
-          .padStart(2, "0");
-        document.getElementById("speedrunTimer").textContent = `${s}:${ms}`;
-        speedrunRAF = requestAnimationFrame(updateSpeedrunTimer);
-      }
-
-      function startSpeedrunTimer() {
-        speedrunStart = performance.now();
-        cancelAnimationFrame(speedrunRAF);
-        updateSpeedrunTimer();
-      }
-
-      function stopSpeedrunTimer() {
-        cancelAnimationFrame(speedrunRAF);
-      }
-
-      function endGame(success = false) {
-        clearInterval(timerInterval);
-        stopSpeedrunTimer();
-        input.disabled = true;
-        gameActive = false;
-        [
-          startMusic,
-          tickSound,
-          bombSound,
-          successSound,
-          missionFailedSound,
-          keepGoingSound,
-          comeOnSound,
-        ].forEach((a) => {
-          a.pause();
-          a.currentTime = 0;
-        });
-        if (success) {
-          gameOverDisplay.innerText = "MISSION SUCCESS";
-          successSound.play();
-        } else {
-          gameOverDisplay.innerText = "MISSION FAILED";
-          triggerShake();
-          bombSound.play();
-          missionFailedSound.play();
-        }
-      }
-
-      function startGame() {
-        score = 0;
-        timer = 10; // ✅ Timer bomb bermula dari 10 saat
-        usedWords = [];
-        wrongWordsList.innerHTML = "";
-        gameOverDisplay.innerText = "";
-        input.disabled = false;
-        gameActive = true;
-        keepGoingPlayed = false;
-
+  input.addEventListener("keydown", (e) => {
+    if (!gameActive) return;
+    if (e.code === "Space") {
+      e.preventDefault();
+      const typed = input.value.trim();
+      if (typed === currentWord) {
+        score++;
+        timer = Math.min(80, timer + 5);
+        floatSignal("+5s", "plus");
+        setStatusLight("lime");
         showNewWord();
         updateTimerDisplay();
-        startSpeedrunTimer();
-        comeOnSound.play();
-        startMusic.play();
-        tickSound.play();
-
-        timerInterval = setInterval(() => {
-          timer--;
-          updateTimerDisplay();
-          if (timer >= 50 && !keepGoingPlayed) {
-            keepGoingSound.play();
-            keepGoingPlayed = true;
-          }
-          if (timer <= 0) endGame(false);
-        }, 1000);
+        if (timer >= 80) endGame(true);
+      } else {
+        const li = document.createElement("li");
+        li.textContent = `${typed} ❌ -> ${currentWord}`;
+        wrongWordsList.appendChild(li);
+        timer -= 5;
+        floatSignal("-5s", "minus");
+        setStatusLight("red");
+        showNewWord();
+        updateTimerDisplay();
+        if (timer <= 0) endGame(false);
       }
+    }
+  });
 
-      input.addEventListener("input", () => {
-        if (!gameActive) return;
-        const typed = input.value.trim();
-        pressSpace.style.display =
-          typed.length === currentWord.length ? "block" : "none";
-      });
+  startBtn.addEventListener("click", startGame);
+  document.getElementById("resetScoreBtn").onclick = () => {
+    localStorage.removeItem("scores");
+    renderScores();
+  };
 
-      input.addEventListener("keydown", (e) => {
-        if (!gameActive) return;
-        if (e.code === "Space") {
-          e.preventDefault();
-          const typed = input.value.trim();
-          if (typed === currentWord) {
-            score++;
-            timer = Math.min(80, timer + 5);
-            floatSignal("+5s", "plus");
-            setStatusLight("lime");
-            showNewWord();
-            updateTimerDisplay();
-            if (timer >= 80) endGame(true);
-          } else {
-            const li = document.createElement("li");
-            li.textContent = `${typed} ❌ -> ${currentWord}`;
-            wrongWordsList.appendChild(li);
-            timer -= 5;
-            floatSignal("-5s", "minus");
-            setStatusLight("red");
-            showNewWord();
-            updateTimerDisplay();
-            if (timer <= 0) endGame(false);
-          }
-        }
-      });
-
-      startBtn.addEventListener("click", startGame);
-      document.getElementById("resetScoreBtn").onclick = () => {
-        localStorage.removeItem("scores");
-        scoreList.innerHTML = "";
-      };
-    </script>
-  </body>
+  renderScores();
+</script>
+</body>
 </html>
