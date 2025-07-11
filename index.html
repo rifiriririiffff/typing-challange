@@ -196,13 +196,13 @@ const keepGoingSound = document.getElementById("keepGoingSound");
 const comeOnSound = document.getElementById("comeOnSound");
 
 startMusic.volume = 0.9;
-bombSound.volume = 0.5;
+bombSound.volume = 0.6;
 successSound.volume = 1.0;
 missionFailedSound.volume = 1.0;
 keepGoingSound.volume = 1.0;
 comeOnSound.volume = 1.0;
 
-const words = ["lock", "chip", "trap", "mask", "scan", "plan", "hide", "data", "exit", "find", "access", "target", "cipher", "weapon", "safety", "escape", "backup", "rocket", "launch", "manual", "bullet", "database", "password", "protocol", "mission", "tracking", "override", "operation", "hologram", "interface", "explosive", "blueprint", "signal", "dollar", "time", "rocket", "nuclear", "general", "function", "disenchanted", "calculation", "misscalculation", "execute", "secret", "command", "leader", "headquarters", "agency", "machine", "classes", "air", "stricted", "behind", "eye", "padlock", "boots", "live", "case", "fuse", "hope", "accomplished"];
+const words = ["lock", "chip", "trap", "mask", "scan", "plan", "hide", "data", "exit", "find", "access", "target", "cipher", "weapon", "safety", "escape", "backup", "rocket", "launch", "manual", "bullet", "database", "password", "protocol", "mission", "tracking", "override", "operation", "hologram", "interface", "explosive", "blueprint", "signal", "dollar", "time", "rocket", "nuclear", "general", "function", "disenchanted", "calculation", "misscalculation", "execute", "secret", "command", "leader", "headquarters", "agency", "machine", "classes", "air", "stricted", "behind", "eye", "padlock", "boots", "live", "case", "fuse", "hope", "accomplished", "phobia", "photo", "scammer", "jumping", "tracking", "cooking", "shaking", "sleeping"];
 
 let score = 0, timer = 10, currentWord = "", usedWords = [], gameActive = false;
 let keepGoingPlayed = false, timerInterval, speedrunStart = 0, speedrunRAF;
