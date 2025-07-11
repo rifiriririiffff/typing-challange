@@ -1,459 +1,385 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Typing Bomb Challenge</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      body {
-        font-family: "Orbitron", sans-serif;
-        background: radial-gradient(#000000, #1a1a1a);
-        color: #ff3d00;
-        text-align: center;
-        padding: 20px;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <title>Typing Bomb Challenge</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: "Orbitron", sans-serif;
+      background: radial-gradient(#000000, #1a1a1a);
+      color: #ff3d00;
+      text-align: center;
+      padding: 20px;
+    }
+    .title-image img {
+      width: 100%;
+      max-width: 700px;
+      height: auto;
+      max-height: 90px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+      filter: drop-shadow(0 0 15px red);
+    }
+    #gameArea {
+      max-width: 700px;
+      margin: auto;
+      background: #111;
+      padding: 20px;
+      border: 3px solid #f44336;
+      border-radius: 12px;
+      box-shadow: 0 0 30px rgba(255, 0, 0, 0.9);
+      position: relative;
+    }
+    #quote {
+      font-size: 1.7em;
+      margin: 20px 0;
+      color: #ffffff;
+    }
+    textarea {
+      width: 90%;
+      height: 80px;
+      font-size: 1.2em;
+      padding: 10px;
+      text-align: center;
+      background: #000;
+      border: 2px solid #ff3d00;
+      border-radius: 8px;
+      color: #ff5722;
+    }
+    .btn {
+      margin: 10px 5px;
+      padding: 12px 25px;
+      font-size: 1em;
+      border: none;
+      border-radius: 5px;
+      background-color: #f44336;
+      color: #fff;
+      cursor: pointer;
+    }
+    #bombTimer {
+      margin: 10px;
+      font-size: 2em;
+      color: #f44336;
+      text-shadow: 0 0 10px red;
+      border: 2px solid #f44336;
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 12px;
+      background-color: #000;
+    }
+    #statusLight {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      margin: 10px auto 0;
+      background-color: #888;
+      box-shadow: 0 0 10px #888;
+    }
+    .floatSignal {
+      position: absolute;
+      font-size: 1.5em;
+      font-weight: bold;
+      animation: floatUp 1s ease-out forwards;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 100px;
+      pointer-events: none;
+      z-index: 9999;
+    }
+    .plus {
+      color: lime;
+      text-shadow: 0 0 10px lime;
+    }
+    .minus {
+      color: red;
+      text-shadow: 0 0 10px red;
+    }
+    @keyframes floatUp {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-50px); }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translate(0, 0); }
+      25% { transform: translate(-5px, 5px); }
+      50% { transform: translate(5px, -5px); }
+      75% { transform: translate(-5px, 5px); }
+    }
+    .shake {
+      animation: shake 0.5s ease-in-out;
+    }
+    #speedrunTimerBox {
+      position: fixed;
+      top: 15px;
+      right: 25px;
+      background: rgba(0, 0, 0, 0.6);
+      border: 2px solid red;
+      border-radius: 10px;
+      padding: 8px 14px;
+      z-index: 9999;
+      min-width: 80px;
+      text-align: center;
+    }
+    #speedrunTimer {
+      font-family: "Courier New", Courier, monospace;
+      color: red;
+      font-size: 20px;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+    #wrongWordsContainer ul {
+      list-style: square;
+      padding-left: 30px;
+      text-align: left;
+      display: inline-block;
+    }
+    #scoreboard {
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 2px solid #ff6f00;
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <div id="speedrunTimerBox"><div id="speedrunTimer">00:00</div></div>
+  <div class="title-image"><img src="tittle.png" alt="Typing Bomb Mission" /></div>
+  <div id="statusLight"></div>
+  <div id="gameArea">
+    <audio id="startMusic" src="startaction.mp3" loop></audio>
+    <audio id="tickSound" src="tick.mp3" loop></audio>
+    <audio id="bombSound" src="bomb.mp3"></audio>
+    <audio id="missionFailedSound" src="missionfailed.mp3"></audio>
+    <audio id="successSound" src="success.mp3"></audio>
+    <audio id="keepGoingSound" src="keepgoing.mp3"></audio>
+    <audio id="comeOnSound" src="comeon.mp3"></audio>
 
-      .title-image img {
-  width: 100%;               
-  max-width: 340px;          
-  height: auto;              
-  max-height: 340px;         
-  object-fit: contain;       
-  display: block;
-  margin: 0 auto;
-  filter: drop-shadow(0 0 15px red)
+    <div id="quote">Press Start!</div>
+    <textarea id="input" disabled placeholder="Type here..."></textarea>
+    <div id="pressSpace" style="display:none;font-weight:bold;color:lime">✅ PRESS SPACE!!</div>
+    <div id="bombTimer">💣 Timer: 10s</div>
+    <div id="gameOverDisplay" style="font-size:1.5em;font-weight:bold;color:red;margin-top:10px;"></div>
+    <input type="text" id="playerName" placeholder="Enter your codename" />
+    <button class="btn" id="startBtn">Start Mission</button>
+
+    <div id="wrongWordsContainer">
+      <h4>Incorrect Entries:</h4>
+      <ul id="wrongWordsList"></ul>
+    </div>
+  </div>
+
+  <div id="scoreboard">
+    <h3>Top Agents</h3>
+    <ul id="scoreList"></ul>
+    <button class="btn" id="resetScoreBtn">Reset Leaderboard</button>
+  </div>
+
+<script>
+const input = document.getElementById("input");
+const startBtn = document.getElementById("startBtn");
+const quote = document.getElementById("quote");
+const bombTimer = document.getElementById("bombTimer");
+const pressSpace = document.getElementById("pressSpace");
+const playerName = document.getElementById("playerName");
+const wrongWordsList = document.getElementById("wrongWordsList");
+const scoreList = document.getElementById("scoreList");
+const gameOverDisplay = document.getElementById("gameOverDisplay");
+const statusLight = document.getElementById("statusLight");
+
+const startMusic = document.getElementById("startMusic");
+const tickSound = document.getElementById("tickSound");
+const bombSound = document.getElementById("bombSound");
+const missionFailedSound = document.getElementById("missionFailedSound");
+const successSound = document.getElementById("successSound");
+const keepGoingSound = document.getElementById("keepGoingSound");
+const comeOnSound = document.getElementById("comeOnSound");
+
+startMusic.volume = 0.9;
+bombSound.volume = 0.5;
+successSound.volume = 1.0;
+missionFailedSound.volume = 1.0;
+keepGoingSound.volume = 1.0;
+comeOnSound.volume = 1.0;
+
+const words = ["lock", "chip", "trap", "mask", "scan", "plan", "hide", "data", "exit", "find", "access", "target", "cipher", "weapon", "safety", "escape", "backup", "rocket", "launch", "manual", "bullet", "database", "password", "protocol", "mission", "tracking", "override", "operation", "hologram", "interface", "explosive", "blueprint", "signal", "dollar", "time", "rocket", "nuclear", "general", "function", "disenchanted", "calculation", "misscalculation", "execute", "secret", "command", "leader", "headquarters", "agency", "machine"];
+
+let score = 0, timer = 10, currentWord = "", usedWords = [], gameActive = false;
+let keepGoingPlayed = false, timerInterval, speedrunStart = 0, speedrunRAF;
+
+function floatSignal(text, type) {
+  const float = document.createElement("div");
+  float.className = `floatSignal ${type}`;
+  float.textContent = text;
+  document.getElementById("gameArea").appendChild(float);
+  setTimeout(() => float.remove(), 1000);
 }
 
-      }
-      .title-image img {
-        width: 100%;
-        max-width: 700px;
-        height: auto;
-        max-height: 90px;
-        object-fit: contain;
-        display: block;
-        margin: 0 auto;
-        filter: drop-shadow(0 0 15px red);
-      }
+function triggerShake() {
+  document.body.classList.add("shake");
+  setTimeout(() => document.body.classList.remove("shake"), 500);
+}
 
-      #gameArea {
-        max-width: 700px;
-        margin: auto;
-        background: #111;
-        padding: 20px;
-        border: 3px solid #f44336;
-        border-radius: 12px;
-        box-shadow: 0 0 30px rgba(255, 0, 0, 0.9);
-        position: relative;
-      }
+function setStatusLight(color) {
+  statusLight.style.backgroundColor = color;
+  statusLight.style.boxShadow = `0 0 15px ${color}`;
+}
 
-      #quote {
-        font-size: 1.7em;
-        margin: 20px 0;
-        color: #ffffff;
-      }
+function getNewWord() {
+  if (usedWords.length === words.length) usedWords = [];
+  let word;
+  do { word = words[Math.floor(Math.random() * words.length)]; }
+  while (usedWords.includes(word));
+  usedWords.push(word);
+  return word;
+}
 
-      textarea {
-        width: 90%;
-        height: 80px;
-        font-size: 1.2em;
-        padding: 10px;
-        text-align: center;
-        background: #000;
-        border: 2px solid #ff3d00;
-        border-radius: 8px;
-        color: #ff5722;
-      }
+function showNewWord() {
+  currentWord = getNewWord();
+  quote.textContent = currentWord;
+  input.value = "";
+  pressSpace.style.display = "none";
+  input.focus();
+}
 
-      .btn {
-        margin: 10px 5px;
-        padding: 12px 25px;
-        font-size: 1em;
-        border: none;
-        border-radius: 5px;
-        background-color: #f44336;
-        color: #fff;
-        cursor: pointer;
-      }
-      #bombTimer {
-        margin: 10px;
-        font-size: 2em;
-        color: #f44336;
-        text-shadow: 0 0 10px red;
-        border: 2px solid #f44336;
-        display: inline-block;
-        padding: 10px 20px;
-        border-radius: 12px;
-        background-color: #000;
-      }
+function updateTimerDisplay() {
+  bombTimer.textContent = `💣 Timer: ${timer}s`;
+}
 
-      #statusLight {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        margin: 10px auto 0;
-        background-color: #888;
-        box-shadow: 0 0 10px #888;
-      }
+function updateSpeedrunTimer() {
+  const elapsed = performance.now() - speedrunStart;
+  const s = Math.floor(elapsed / 1000).toString().padStart(2, "0");
+  const ms = Math.floor((elapsed % 1000) / 10).toString().padStart(2, "0");
+  document.getElementById("speedrunTimer").textContent = `${s}:${ms}`;
+  speedrunRAF = requestAnimationFrame(updateSpeedrunTimer);
+}
 
-      .floatSignal {
-        position: absolute;
-        font-size: 1.5em;
-        font-weight: bold;
-        animation: floatUp 1s ease-out forwards;
-        left: 50%;
-        transform: translateX(-50%);
-        top: 100px;
-        pointer-events: none;
-        z-index: 9999;
-      }
+function startSpeedrunTimer() {
+  speedrunStart = performance.now();
+  cancelAnimationFrame(speedrunRAF);
+  updateSpeedrunTimer();
+}
 
-      .plus {
-        color: lime;
-        text-shadow: 0 0 10px lime;
-      }
+function stopSpeedrunTimer() {
+  cancelAnimationFrame(speedrunRAF);
+}
 
-      .minus {
-        color: red;
-        text-shadow: 0 0 10px red;
-      }
-
-      @keyframes floatUp {
-        0% {
-          opacity: 1;
-          transform: translateY(0);
-        }
-        100% {
-          opacity: 0;
-          transform: translateY(-50px);
-        }
-      }
-
-      @keyframes shake {
-        0%,
-        100% {
-          transform: translate(0, 0);
-        }
-        25% {
-          transform: translate(-5px, 5px);
-        }
-        50% {
-          transform: translate(5px, -5px);
-        }
-        75% {
-          transform: translate(-5px, 5px);
-        }
-      }
-
-      .shake {
-        animation: shake 0.5s ease-in-out;
-      }
-
-      #speedrunTimerBox {
-        position: fixed;
-        top: 15px;
-        right: 25px;
-        background: rgba(0, 0, 0, 0.6);
-        border: 2px solid red;
-        border-radius: 10px;
-        padding: 8px 14px;
-        z-index: 9999;
-        min-width: 80px;
-        text-align: center;
-      }
-
-      #speedrunTimer {
-        font-family: "Courier New", Courier, monospace;
-        color: red;
-        font-size: 20px;
-        font-weight: bold;
-        letter-spacing: 1px;
-      }
-
-      #wrongWordsContainer ul {
-        list-style: square;
-        padding-left: 30px;
-        text-align: left;
-        display: inline-block;
-      }
-
-      #scoreboard {
-        margin-top: 60px;
-        padding-top: 20px;
-        border-top: 2px solid #ff6f00;
-        color: #fff;
-      }
-    </style>
-  </head>
-  <body>
-    <div id="speedrunTimerBox"><div id="speedrunTimer">00:00</div></div>
-
-    <div class="title-image">
-      <img src="tittle.png" alt="Typing Bomb Mission" />
-    </div>
-
-    <div id="statusLight"></div>
-
-    <div id="gameArea">
-      <audio id="startMusic" src="startaction.mp3" loop></audio>
-      <audio id="tickSound" src="tick.mp3" loop></audio>
-      <audio id="bombSound" src="bomb.mp3"></audio>
-      <audio id="missionFailedSound" src="missionfailed.mp3"></audio>
-      <audio id="successSound" src="success.mp3"></audio>
-      <audio id="keepGoingSound" src="keepgoing.mp3"></audio>
-      <audio id="comeOnSound" src="comeon.mp3"></audio>
-
-      <div id="quote">Press Start!</div>
-      <textarea id="input" disabled placeholder="Type here..."></textarea>
-      <div
-        id="pressSpace"
-        style="display: none; font-weight: bold; color: lime"
-      >
-        ✅ PRESS SPACE!!
-      </div>
-      <div id="bombTimer">💣 Timer: 10s</div>
-      <div
-        id="gameOverDisplay"
-        style="
-          font-size: 1.5em;
-          font-weight: bold;
-          color: red;
-          margin-top: 10px;
-        "
-      ></div>
-      <input type="text" id="playerName" placeholder="Enter your codename" />
-      <button class="btn" id="startBtn">Start Mission</button>
-
-      <div id="wrongWordsContainer">
-        <h4>Incorrect Entries:</h4>
-        <ul id="wrongWordsList"></ul>
-      </div>
-    </div>
-
-    <div id="scoreboard">
-      <h3>Top Agents</h3>
-      <ul id="scoreList"></ul>
-      <button class="btn" id="resetScoreBtn">Reset Leaderboard</button>
-    </div>
-  </body>
-</html>
-<script>
-  const input = document.getElementById("input");
-  const startBtn = document.getElementById("startBtn");
-  const quote = document.getElementById("quote");
-  const bombTimer = document.getElementById("bombTimer");
-  const pressSpace = document.getElementById("pressSpace");
-  const playerName = document.getElementById("playerName");
-  const wrongWordsList = document.getElementById("wrongWordsList");
-  const scoreList = document.getElementById("scoreList");
-  const gameOverDisplay = document.getElementById("gameOverDisplay");
-  const statusLight = document.getElementById("statusLight");
-
-  const startMusic = document.getElementById("startMusic");
-  const tickSound = document.getElementById("tickSound");
-  const bombSound = document.getElementById("bombSound");
-  const missionFailedSound = document.getElementById("missionFailedSound");
-  const successSound = document.getElementById("successSound");
-  const keepGoingSound = document.getElementById("keepGoingSound");
-  const comeOnSound = document.getElementById("comeOnSound");
-
-  startMusic.volume = 0.9;
-  bombSound.volume = 0.5;
-  successSound.volume = 1.0;
-  missionFailedSound.volume = 1.0;
-  keepGoingSound.volume = 1.0;
-  comeOnSound.volume = 1.0;
-
-  const words = [
-    "lock","chip","trap","mask","scan","plan","hide","data","exit","find",
-    "access","target","cipher","weapon","safety","escape","backup","rocket",
-    "launch","manual","bullet","database","password","protocol","mission",
-    "tracking","override","operation","hologram","interface","explosive",
-    "blueprint","signal","dollar","time","rocket","nuclear","general",
-    "function","disenchanted","calculation","misscalculation","execute",
-    "secret","command","leader","headquarters","agency","machine"
-  ];
-
-  let score = 0, timer = 10, currentWord = "", usedWords = [], gameActive = false;
-  let keepGoingPlayed = false, timerInterval, speedrunStart = 0, speedrunRAF;
-
-  function floatSignal(text, type) {
-    const float = document.createElement("div");
-    float.className = `floatSignal ${type}`;
-    float.textContent = text;
-    document.getElementById("gameArea").appendChild(float);
-    setTimeout(() => float.remove(), 1000);
-  }
-
-  function triggerShake() {
-    document.body.classList.add("shake");
-    setTimeout(() => document.body.classList.remove("shake"), 500);
-  }
-
-  function setStatusLight(color) {
-    statusLight.style.backgroundColor = color;
-    statusLight.style.boxShadow = `0 0 15px ${color}`;
-  }
-
-  function getNewWord() {
-    if (usedWords.length === words.length) usedWords = [];
-    let word;
-    do {
-      word = words[Math.floor(Math.random() * words.length)];
-    } while (usedWords.includes(word));
-    usedWords.push(word);
-    return word;
-  }
-
-  function showNewWord() {
-    currentWord = getNewWord();
-    quote.textContent = currentWord;
-    input.value = "";
-    pressSpace.style.display = "none";
-    input.focus();
-  }
-
-  function updateTimerDisplay() {
-    bombTimer.textContent = `💣 Timer: ${timer}s`;
-  }
-
-  function updateSpeedrunTimer() {
-    const elapsed = performance.now() - speedrunStart;
-    const s = Math.floor(elapsed / 1000).toString().padStart(2, "0");
-    const ms = Math.floor((elapsed % 1000) / 10).toString().padStart(2, "0");
-    document.getElementById("speedrunTimer").textContent = `${s}:${ms}`;
-    speedrunRAF = requestAnimationFrame(updateSpeedrunTimer);
-  }
-
-  function startSpeedrunTimer() {
-    speedrunStart = performance.now();
-    cancelAnimationFrame(speedrunRAF);
-    updateSpeedrunTimer();
-  }
-
-  function stopSpeedrunTimer() {
-    cancelAnimationFrame(speedrunRAF);
-  }
-
-  function saveScore(name, time, status) {
-    const scores = JSON.parse(localStorage.getItem("scores") || "[]");
-    scores.push({ name, time, status });
-    scores.sort((a, b) => {
-      if (a.status === "SUCCESS" && b.status !== "SUCCESS") return -1;
-      if (a.status !== "SUCCESS" && b.status === "SUCCESS") return 1;
-      return a.time - b.time;
-    });
-    localStorage.setItem("scores", JSON.stringify(scores.slice(0, 500)));
-    renderScores();
-  }
-
-  function renderScores() {
-    const scores = JSON.parse(localStorage.getItem("scores") || "[]");
-    scoreList.innerHTML = "";
-    scores.forEach((s, i) => {
-      const li = document.createElement("li");
-      li.innerHTML = `<b>${i + 1}. ${s.name}</b> — <span style="color:${
-        s.status === "SUCCESS" ? "lime" : "red"
-      }">${s.status}</span> <small>(${(s.time / 1000).toFixed(2)}s)</small>`;
-      scoreList.appendChild(li);
-    });
-  }
-
-  function endGame(success = false) {
-    clearInterval(timerInterval);
-    stopSpeedrunTimer();
-    input.disabled = true;
-    gameActive = false;
-    [startMusic, tickSound, bombSound, successSound, missionFailedSound, keepGoingSound, comeOnSound].forEach(a => {
-      a.pause();
-      a.currentTime = 0;
-    });
-    const name = playerName.value.trim() || "UNKNOWN";
-    const finalTime = performance.now() - speedrunStart;
-    if (success) {
-      gameOverDisplay.innerText = "MISSION SUCCESS";
-      successSound.play();
-      saveScore(name, finalTime, "SUCCESS");
-    } else {
-      gameOverDisplay.innerText = "MISSION FAILED";
-      triggerShake();
-      bombSound.play();
-      missionFailedSound.play();
-      saveScore(name, finalTime, "FAILED");
-    }
-  }
-
-  function startGame() {
-    score = 0;
-    timer = 10;
-    usedWords = [];
-    wrongWordsList.innerHTML = "";
-    gameOverDisplay.innerText = "";
-    input.disabled = false;
-    gameActive = true;
-    keepGoingPlayed = false;
-
-    showNewWord();
-    updateTimerDisplay();
-    startSpeedrunTimer();
-    comeOnSound.play();
-    startMusic.play();
-    tickSound.play();
-
-    timerInterval = setInterval(() => {
-      timer--;
-      updateTimerDisplay();
-      if (timer >= 50 && !keepGoingPlayed) {
-        keepGoingSound.play();
-        keepGoingPlayed = true;
-      }
-      if (timer <= 0) endGame(false);
-    }, 1000);
-  }
-
-  input.addEventListener("input", () => {
-    if (!gameActive) return;
-    const typed = input.value.trim();
-    pressSpace.style.display = typed.length === currentWord.length ? "block" : "none";
+function saveScore(name, time, status, wordsTyped) {
+  const scores = JSON.parse(localStorage.getItem("scores") || "[]");
+  scores.push({ name, time, status, wordsTyped });
+  scores.sort((a, b) => {
+    if (a.status === "SUCCESS" && b.status !== "SUCCESS") return -1;
+    if (a.status !== "SUCCESS" && b.status === "SUCCESS") return 1;
+    return a.time - b.time;
   });
-
-  input.addEventListener("keydown", (e) => {
-    if (!gameActive) return;
-    if (e.code === "Space") {
-      e.preventDefault();
-      const typed = input.value.trim();
-      if (typed === currentWord) {
-        score++;
-        timer = Math.min(80, timer + 5);
-        floatSignal("+5s", "plus");
-        setStatusLight("lime");
-        showNewWord();
-        updateTimerDisplay();
-        if (timer >= 80) endGame(true);
-      } else {
-        const li = document.createElement("li");
-        li.textContent = `${typed} ❌ -> ${currentWord}`;
-        wrongWordsList.appendChild(li);
-        timer -= 5;
-        floatSignal("-5s", "minus");
-        setStatusLight("red");
-        showNewWord();
-        updateTimerDisplay();
-        if (timer <= 0) endGame(false);
-      }
-    }
-  });
-
-  startBtn.addEventListener("click", startGame);
-  document.getElementById("resetScoreBtn").onclick = () => {
-    localStorage.removeItem("scores");
-    renderScores();
-  };
-
+  localStorage.setItem("scores", JSON.stringify(scores.slice(0, 500)));
   renderScores();
+}
+
+function renderScores() {
+  const scores = JSON.parse(localStorage.getItem("scores") || "[]");
+  scoreList.innerHTML = "";
+  scores.forEach((s, i) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<b>${i + 1}. ${s.name}</b> — <span style="color:${
+      s.status === "SUCCESS" ? "lime" : "red"
+    }">${s.status}</span> <small>(${(s.time / 1000).toFixed(2)}s, ${s.wordsTyped} words)</small>`;
+    scoreList.appendChild(li);
+  });
+}
+
+function endGame(success = false) {
+  clearInterval(timerInterval);
+  stopSpeedrunTimer();
+  input.disabled = true;
+  gameActive = false;
+  [startMusic, tickSound, bombSound, successSound, missionFailedSound, keepGoingSound, comeOnSound].forEach(a => {
+    a.pause();
+    a.currentTime = 0;
+  });
+  const name = playerName.value.trim() || "UNKNOWN";
+  const finalTime = performance.now() - speedrunStart;
+  const wordsTyped = score;
+  if (success) {
+    gameOverDisplay.innerText = "MISSION SUCCESS";
+    successSound.play();
+    saveScore(name, finalTime, "SUCCESS", wordsTyped);
+  } else {
+    gameOverDisplay.innerText = "MISSION FAILED";
+    triggerShake();
+    bombSound.play();
+    missionFailedSound.play();
+    saveScore(name, finalTime, "FAILED", wordsTyped);
+  }
+}
+
+function startGame() {
+  score = 0;
+  timer = 10;
+  usedWords = [];
+  wrongWordsList.innerHTML = "";
+  gameOverDisplay.innerText = "";
+  input.disabled = false;
+  gameActive = true;
+  keepGoingPlayed = false;
+
+  showNewWord();
+  updateTimerDisplay();
+  startSpeedrunTimer();
+  comeOnSound.play();
+  startMusic.play();
+  tickSound.play();
+
+  timerInterval = setInterval(() => {
+    timer--;
+    updateTimerDisplay();
+    if (timer >= 50 && !keepGoingPlayed) {
+      keepGoingSound.play();
+      keepGoingPlayed = true;
+    }
+    if (timer <= 0) endGame(false);
+  }, 1000);
+}
+
+input.addEventListener("input", () => {
+  if (!gameActive) return;
+  const typed = input.value.trim();
+  pressSpace.style.display = typed.length === currentWord.length ? "block" : "none";
+});
+
+input.addEventListener("keydown", (e) => {
+  if (!gameActive) return;
+  if (e.code === "Space") {
+    e.preventDefault();
+    const typed = input.value.trim();
+    if (typed === currentWord) {
+      score++;
+      timer = Math.min(80, timer + 5);
+      floatSignal("+5s", "plus");
+      setStatusLight("lime");
+      showNewWord();
+      updateTimerDisplay();
+      if (timer >= 80) endGame(true);
+    } else {
+      const li = document.createElement("li");
+      li.textContent = `${typed} ❌ -> ${currentWord}`;
+      wrongWordsList.appendChild(li);
+      timer -= 5;
+      floatSignal("-5s", "minus");
+      setStatusLight("red");
+      showNewWord();
+      updateTimerDisplay();
+      if (timer <= 0) endGame(false);
+    }
+  }
+});
+
+startBtn.addEventListener("click", startGame);
+document.getElementById("resetScoreBtn").onclick = () => {
+  localStorage.removeItem("scores");
+  renderScores();
+};
+
+renderScores();
 </script>
-</body>
 </html>
