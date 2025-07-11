@@ -14,9 +14,9 @@
     }
     .title-image img {
       width: 100%;
-      max-width: 700px;
+      max-width: 400px;
       height: auto;
-      max-height: 90px;
+      max-height: 400px;
       object-fit: contain;
       display: block;
       margin: 0 auto;
@@ -157,7 +157,7 @@
 
     <div id="quote">Press Start!</div>
     <textarea id="input" disabled placeholder="Type here..."></textarea>
-    <div id="pressSpace" style="display:none;font-weight:bold;color:lime">✅ PRESS SPACE!!</div>
+    <div id="pressSpace" style="display:none;font-weight:bold;color:lime">PRESS SPACE!!</div>
     <div id="bombTimer">💣 Timer: 10s</div>
     <div id="gameOverDisplay" style="font-size:1.5em;font-weight:bold;color:red;margin-top:10px;"></div>
     <input type="text" id="playerName" placeholder="Enter your codename" />
@@ -202,7 +202,7 @@ missionFailedSound.volume = 1.0;
 keepGoingSound.volume = 1.0;
 comeOnSound.volume = 1.0;
 
-const words = ["lock", "chip", "trap", "mask", "scan", "plan", "hide", "data", "exit", "find", "access", "target", "cipher", "weapon", "safety", "escape", "backup", "rocket", "launch", "manual", "bullet", "database", "password", "protocol", "mission", "tracking", "override", "operation", "hologram", "interface", "explosive", "blueprint", "signal", "dollar", "time", "rocket", "nuclear", "general", "function", "disenchanted", "calculation", "misscalculation", "execute", "secret", "command", "leader", "headquarters", "agency", "machine"];
+const words = ["lock", "chip", "trap", "mask", "scan", "plan", "hide", "data", "exit", "find", "access", "target", "cipher", "weapon", "safety", "escape", "backup", "rocket", "launch", "manual", "bullet", "database", "password", "protocol", "mission", "tracking", "override", "operation", "hologram", "interface", "explosive", "blueprint", "signal", "dollar", "time", "rocket", "nuclear", "general", "function", "disenchanted", "calculation", "misscalculation", "execute", "secret", "command", "leader", "headquarters", "agency", "machine", "classes", "air", "stricted", "behind", "eye", "padlock", "boots", "live", "case", "fuse", "hope", "accomplished"];
 
 let score = 0, timer = 10, currentWord = "", usedWords = [], gameActive = false;
 let keepGoingPlayed = false, timerInterval, speedrunStart = 0, speedrunRAF;
